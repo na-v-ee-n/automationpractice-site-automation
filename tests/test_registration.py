@@ -2,6 +2,7 @@ import pytest
 import allure
 from pages.registration_page import RegistrationPage
 from utils.excel_reader import read_test_data
+from testdata.data_paths import REGISTRATION_TESTCASES
 
 @allure.feature("User Registration")
 @allure.story("Account Creation")
@@ -10,7 +11,7 @@ class TestRegistration:
     @allure.title("Registration Test - {data[Email]}")
     @allure.description("Test user registration functionality with different data")
     @allure.severity(allure.severity_level.CRITICAL)
-    @pytest.mark.parametrize("data", read_test_data("Login Testcases.xlsx", "Registration"))
+    @pytest.mark.parametrize("data", read_test_data(REGISTRATION_TESTCASES, "Registration_TestData"))
     def test_registration_cases(self, data):
         with allure.step("Initialize registration page"):
             page = RegistrationPage(self.driver)

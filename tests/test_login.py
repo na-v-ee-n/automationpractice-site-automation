@@ -1,12 +1,9 @@
 import pytest
 import allure
-import os
 from pages.login_page import LoginPage
 from utils.excel_reader import read_test_data
 from utils.test_helper import step, attach_text, attach_html, log_and_assert
-
-# Correct path for Excel file
-file_path = os.path.join(os.path.dirname(__file__), "..", "Login Testcases.xlsx")
+from testdata.data_paths import LOGIN_TESTCASES
 
 @pytest.mark.usefixtures("setup")
 class TestLogin:
@@ -14,7 +11,7 @@ class TestLogin:
     @allure.title("Login Test - {data[Test Case Title]}")
     @allure.description("Test login functionality with different credentials")
     @allure.severity(allure.severity_level.CRITICAL)
-    @pytest.mark.parametrize("data", read_test_data(file_path, "Sheet1"))
+    @pytest.mark.parametrize("data", read_test_data(LOGIN_TESTCASES, "Sheet1"))
     def test_login_cases(self, data):
         if data["Module"] != "Login":
             pytest.skip("Not a login test case")

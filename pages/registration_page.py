@@ -7,7 +7,10 @@ class RegistrationPage(BasePage):
     REGISTER_BTN = (By.NAME, "register")
     ERROR_MSG = (By.CSS_SELECTOR, ".woocommerce-error li")
     SUCCESS_MSG = (By.CSS_SELECTOR, ".woocommerce-MyAccount-content")
-
+    PASSWORD_STRENGTH_TEXT = (By.XPATH, "//div[@class='woocommerce-password-strength bad']")
+    HELLO_USER = (By.XPATH, "//p[starts-with(normalize-space(),'Hello user')]")
+    LOGOUT_BTN = (By.XPATH, "//a[normalize-space()='Logout']")
+    
     def register(self, email, password):
         self.type(*self.EMAIL, email)
         self.type(*self.PASSWORD, password)

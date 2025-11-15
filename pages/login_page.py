@@ -11,7 +11,8 @@ class LoginPage(BasePage):
     ERROR_MSG = (By.XPATH, "//strong[text()='Error:']")
     DASHBOARD = (By.CSS_SELECTOR, ".woocommerce-MyAccount-content")
     MY_ACCOUNT_BTN = (By.XPATH, "//li/a[text()='My Account']")
-    
+    LOGOUT_BTN = (By.XPATH, "//a[normalize-space()='Logout']")
+
     def navigate_to_login(self):
         self.click(self.MY_ACCOUNT_BTN[0], self.MY_ACCOUNT_BTN[1])
         return self.find(self.LOGIN_BTN[0], self.LOGIN_BTN[1]).is_displayed()
