@@ -15,7 +15,8 @@ def run_tests(test_path, report_name="test_report"):
         f"--html={report_file}",
         "--self-contained-html",
         "--alluredir=allure-results",
-        "-v"
+        "-v",
+        "-s"
     ])
     
     print(f"\n{'='*50}")

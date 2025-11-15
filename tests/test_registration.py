@@ -1,9 +1,12 @@
 import pytest
 import allure
+import logging
 from pages.registration_page import RegistrationPage
 from utils.excel_reader import read_test_data
 from utils.test_helper import step, attach_text, attach_html, log_and_assert
 from testdata.data_paths import REGISTRATION_TESTCASES
+
+logger = logging.getLogger(__name__)
 
 @pytest.mark.usefixtures("setup")
 class TestRegistration:
@@ -17,9 +20,12 @@ class TestRegistration:
             pytest.skip("Not a registration test case")
 
         with step("Navigate to registration page"):
+            logger.info(f"Starting test: {data.get('Test_Case_Title', 'Registration Test')}")
             registration_page = RegistrationPage(self.driver)
+            logger.info("Navigating to registration page")
             registration_visible = registration_page.navigate_to_registration()
             log_and_assert(registration_visible, "Registration button not visible after clicking My Account")
+            logger.info("Registration page loaded successfully")
 
         # Extract email and password from Excel data
         email = str(data.get("Email", "testuser@example.com"))
@@ -34,7 +40,7 @@ class TestRegistration:
         if test_case_id == "REG-01" or test_case_id == "REG-02":
             random_suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=11))
             email = f"user{random_suffix}@gmail.com"
-            print(f"Generated random email for {test_case_id}: {email}")
+            logger.info(f"Generated random email for {test_case_id}: {email}")
         
         # Handle NaN values for all other test cases
         import pandas as pd
@@ -46,20 +52,24 @@ class TestRegistration:
 
         attach_text(email, "Email")
         attach_text(password, "Password")
+        logger.info(f"Using credentials - Email: {email}")
 
         with step(f"Register with credentials: {email}"):
+            logger.info("Entering credentials and clicking register")
             registration_success = registration_page.register(email, password)
             
             # Log password strength after entering password
             strength_text = registration_page.get_password_strength_text()
-            print(f"Password strength text: {strength_text}")
+            logger.info(f"Password strength: {strength_text}")
             attach_text(strength_text, "Password Strength")
             
             # If password is too weak, expect registration to fail
             if not registration_success:
                 with step("Verify weak password is rejected"):
+                    logger.info("Verifying weak password rejection")
                     strength_text = registration_page.get_password_strength_text()
                     log_and_assert("Very weak" in strength_text or "weak" in strength_text.lower(), "Expected weak password validation")
+                    logger.info("Weak password rejected as expected")
                     return  # Skip further validation for weak passwords
             
             self.driver.implicitly_wait(5)
@@ -75,26 +85,32 @@ class TestRegistration:
                 
                 if "Registration succeeds" in expected_result or "REG-01" in test_case_id or "REG-02" in test_case_id:
                     # Expect successful registration
+                    logger.info("Verifying successful registration")
                     success = registration_page.is_registration_successful()
                     log_and_assert(success, "Registration failed - Expected successful registration")
+                    logger.info("Registration successful")
                     
                     if success:
                         with step("Logout and verify"):
+                            logger.info("Logging out")
                             registration_page.logout()
                             logout_success = registration_page.is_register_button_visible()
                             log_and_assert(logout_success, "Registration button not visible after logout")
+                            logger.info("Logout successful")
                 else:
                     # Expect registration to fail
+                    logger.info("Verifying registration failure")
                     success = registration_page.is_registration_successful()
                     if success:
                         # Registration succeeded when it should have failed - logout to clean up
-                        print("Warning: Registration succeeded when failure was expected")
+                        logger.warning("Registration succeeded when failure was expected")
                         registration_page.logout()
                         log_and_assert(False, "Registration succeeded when it should have failed")
                     else:
                         # Registration failed as expected - check for error message
                         error_found = registration_page.is_error_displayed()
                         log_and_assert(error_found or not success, "Expected error message or registration failure")
+                        logger.info("Registration failed as expected")
             except Exception as e:
                 from utils.test_helper import attach_on_failure
                 attach_on_failure(self.driver)
